@@ -1,0 +1,535 @@
+<!doctype html> {% load static %}
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+
+    <title>{% block title %}Codenthia{% endblock %}</title>
+
+
+
+    <!-- Bootstrap Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
+
+    <!--Ckeditor styles-->
+    <link rel="stylesheet" href="https://cdn.ckeditor.com/ckeditor5/45.0.0/ckeditor5.css">
+
+
+
+    <style>
+        .footer a:hover {
+            color: #0d6efd !important;
+            transition: color 0.3s ease;
+        }
+        
+        .footer i {
+            transition: transform 0.3s ease;
+        }
+        
+        .footer i:hover {
+            transform: scale(1.2);
+        }
+    </style>
+</head>
+
+<body style="background-color: #F0F2F5; color: #212529;" class="d-flex flex-column min-vh-100">
+
+    {% include "includes/navbar.html" %}
+    <!-- Navbarı include eder -->
+
+    <!-- Main Content Area -->
+    <div class="container mt-4">
+
+        <!-- Mesajlar Start -->
+        {% if messages %} {% for message in messages %} {% if message.tags == "info" %}
+        <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% else %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show mt-3" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endif %} {% endfor %} {% endif %}
+        <!-- Mesajlar End -->
+
+
+        {% block body %} {% endblock body %}
+
+    </div>
+
+
+
+
+
+
+
+
+    <!-- Footer -->
+    <footer class="footer mt-auto py-4 text-light" style="background: linear-gradient(129deg, #427bbe 0%, #3c4856 100%); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12); border-top-left-radius: 1.5rem; border-top-right-radius: 1.5rem;">
+        <div class="container">
+            <div class="row text-center text-md-start align-items-center">
+                <div class="col-md-4 mb-3 mb-md-0 d-flex flex-column align-items-center align-items-md-start">
+                    <div class="d-flex align-items-center mb-2 gap-2">
+                        <span class="bg-white text-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 38px; height: 38px;">
+                            <i class="bi bi-code-slash fs-4"></i>
+                        </span>
+                        <span class="fw-bold fs-5"><a href="/" class="logo-link">Codenthia Blog</a></span>
+                    </div>
+                    <p class="small text-white-50 mb-0">Yazılım, yapay zeka ve teknolojiyi paylaşan bir geliştirici platformu.</p>
+                </div>
+                <div class="col-md-4 mb-3 mb-md-0 text-center">
+                    <div class="d-flex justify-content-center gap-3 mb-2">
+                        <a href="https://github.com/Erkan3034" class="footer-social" target="_blank" title="GitHub">
+                            <i class="bi bi-github fs-4"></i>
+                        </a>
+                        <a href="https://www.linkedin.com/in/erkanturgut1205/" class="footer-social" target="_blank" title="LinkedIn">
+                            <i class="bi bi-linkedin fs-4"></i>
+                        </a>
+                        <a href="https://twitter.com/Erkan_0630" class="footer-social" target="_blank" title="Twitter">
+                            <i class="bi bi-twitter fs-4"></i>
+                        </a>
+                        <a href="mailto:turguterkan1306@gmail.com" class="footer-social" target="_blank" title="Mail">
+                            <i class="bi bi-envelope fs-4"></i>
+                        </a>
+                    </div>
+                    <div class="d-flex justify-content-center gap-2">
+                        <a href="/privacy-policy" class="footer-link">Gizlilik Politikası</a>
+                        <span class="text-white-50">|</span>
+                        <a href="/contact" class="footer-link">İletişim</a>
+                    </div>
+                </div>
+                <div class="col-md-4 text-md-end text-center mt-3 mt-md-0">
+                    <p class="small text-white-50 mb-1">© 2025 <span class="fw-bold text-white">Codenthia</span>. Tüm hakları saklıdır.</p>
+                    <p class="small text-white-50 mb-0">Geliştirici: <a href="https://github.com/Erkan3034" class="footer-link">Erkan Turgut</a></p>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <style>
+        .footer {
+            border-top-left-radius: 1.5rem;
+            border-top-right-radius: 1.5rem;
+        }
+        
+        .footer-social {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 50%;
+            width: 42px;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s, color 0.2s, transform 0.2s;
+            font-size: 1.3rem;
+        }
+        
+        .footer-social:hover {
+            background: #fff;
+            color: #4b6c93;
+            transform: translateY(-3px) scale(1.1);
+            text-decoration: none;
+        }
+        
+        .footer-link {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        
+        .footer-link:hover {
+            color: #ffd700;
+            text-decoration: underline;
+        }
+        
+        @media (max-width: 767px) {
+            .footer {
+                border-radius: 0;
+            }
+        }
+        
+        a.logo-link {
+            color: white !important;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        a.logo-link:hover {
+            color: white !important;
+            text-decoration: none !important;
+        }
+        
+        .search-dropdown {
+            border-radius: 0 0 1rem 1rem;
+            max-height: 350px;
+            overflow-y: auto;
+            box-shadow: 0 8px 32px rgba(80, 80, 120, 0.13);
+            min-width: 320px;
+            width: 100%;
+            left: 0;
+            right: 0;
+            top: 100%;
+            position: absolute;
+            background: #fff;
+            z-index: 1050;
+            padding: 0.25rem 0;
+        }
+        
+        .search-dropdown .search-result-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0.7rem 1.1rem;
+            border-bottom: 1px solid #f0f0f0;
+            color: #222;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background 0.15s;
+            font-size: 1.04rem;
+        }
+        
+        .search-dropdown .search-result-item:last-child {
+            border-bottom: none;
+        }
+        
+        .search-dropdown .search-result-item:hover {
+            background: #f5f8ff;
+            color: #0d6efd;
+            text-decoration: none;
+        }
+        
+        .search-dropdown .result-icon {
+            font-size: 1.2rem;
+            opacity: 0.8;
+        }
+        
+        .search-dropdown .result-badge {
+            font-size: 0.85rem;
+            font-weight: 600;
+            border-radius: 1rem;
+            padding: 0.2em 0.8em;
+            margin-left: auto;
+        }
+        
+        .search-dropdown .result-badge.blog {
+            background: #0d6efd;
+            color: #fff;
+        }
+        
+        .search-dropdown .result-badge.sosyal {
+            background: #198754;
+            color: #fff;
+        }
+    </style>
+
+
+    <!-- Bootstrap Bundle with Popper -->
+
+
+    <!-- CKEditor 5 JS 
+<script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
+				<script>
+						CKEDITOR.replace( 'content' ,{
+                            allowedContent: true,
+                            toolbar: [
+                                { name: 'document', items: [ 'Source', '-', 'Save', 'NewPage', 'Preview', 'Print' ] },
+                                { name: 'clipboard', items: [ 'Cut', 'Copy', 'Paste', 'Undo', 'Redo' ] },
+                                { name: 'editing', items: [ 'Find', 'Replace' ] },
+                                { name: 'basicstyles', items: [ 'Bold', 'Italic', 'Underline' ] },
+                                { name: 'paragraph', items: [ 'NumberedList', 'BulletedList' ] },
+                                { name: 'insert', items: [ 'Image', 'Table' ] }
+                            ]
+                        });
+				</script>
+-->
+
+
+
+    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'js/jquery-3.7.1.min.js' %}"></script>
+    <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('navbar-search');
+            if (!searchInput) return;
+            // Containerı relative yap
+            searchInput.parentNode.style.position = 'relative';
+
+            let dropdown = document.getElementById('search-dropdown');
+            if (!dropdown) {
+                dropdown = document.createElement('div');
+                dropdown.className = 'search-dropdown shadow';
+                dropdown.id = 'search-dropdown';
+                dropdown.style.display = 'none';
+                searchInput.parentNode.appendChild(dropdown);
+            }
+
+            searchInput.addEventListener('input', function() {
+                const query = this.value.trim();
+                if (query.length < 2) {
+                    dropdown.style.display = 'none';
+                    return;
+                }
+                fetch(`/search-suggestions/?q=${encodeURIComponent(query)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        dropdown.innerHTML = '';
+                        if (data.results.length === 0) {
+                            dropdown.innerHTML = '<div class="p-2 text-muted">Sonuç bulunamadı</div>';
+                        } else {
+                            data.results.forEach(item => {
+                                const link = document.createElement('a');
+                                link.href = item.url;
+                                link.className = 'search-result-item';
+                                link.innerHTML = `
+                                    <span class="result-icon">${item.type === 'blog' ? '<i class="bi bi-journal-code"></i>' : '<i class="bi bi-people"></i>'}</span>
+                                    <span>${item.title}</span>
+                                    <span class="result-badge ${item.type}">${item.type === 'blog' ? 'Blog' : 'Sosyal'}</span>
+                                `;
+                                dropdown.appendChild(link);
+                            });
+                        }
+                        dropdown.style.display = 'block';
+                    });
+            });
+
+            // Kapanma davranışı
+            document.addEventListener('click', function(e) {
+                if (!dropdown.contains(e.target) && e.target !== searchInput) {
+                    dropdown.style.display = 'none';
+                }
+            });
+
+            const openBtn = document.getElementById('custom-open-chatbot-btn');
+            const popup = document.getElementById('custom-chatbot-popup');
+            const closeBtn = document.getElementById('custom-close-chatbot-btn');
+            const maximizeBtn = document.getElementById('custom-maximize-chatbot-btn');
+            const sendBtn = document.getElementById('chatbot-send-btn');
+            const input = document.getElementById('chatbot-input');
+            const messages = document.getElementById('chatbot-messages');
+
+            openBtn.onclick = () => {
+                if (window.innerWidth <= 600) {
+                    window.location.href = '/chatbot/';
+                } else {
+                    popup.style.display = 'flex';
+                }
+            };
+            closeBtn.onclick = () => {
+                popup.style.display = 'none';
+            };
+            maximizeBtn.onclick = () => {
+                window.location.href = '/chatbot/';
+            };
+
+            function addMessage(text, sender) {
+                const msg = document.createElement('div');
+                msg.className = 'chatbot-message ' + sender;
+                msg.innerText = text;
+                messages.appendChild(msg);
+                messages.scrollTop = messages.scrollHeight;
+            }
+
+            function sendMessage() {
+                const text = input.value.trim();
+                if (!text) return;
+                addMessage(text, 'user');
+                input.value = '';
+                // AJAX ile Django API'ye gönder
+                fetch('/chatbot/ask/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            message: text
+                        })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        addMessage(data.answer || 'Bir hata oluştu.', 'bot');
+                    })
+                    .catch(() => {
+                        addMessage('Bir hata oluştu.', 'bot');
+                    });
+            }
+
+            sendBtn.onclick = sendMessage;
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') sendMessage();
+            });
+        });
+    </script>
+
+    <!-- Sohbet Butonu ve Popup -->
+    <div id="custom-chatbot-widget">
+        <button id="custom-open-chatbot-btn" class="chatbot-fab">
+            <i class="bi bi-chat-dots"></i>
+        </button>
+        <div id="custom-chatbot-popup" class="chatbot-popup">
+            <div class="chatbot-header">
+                <img src="{% static 'images/codenthiaRevize.png' %}" alt="Logo" style="width:40px; height:40px; border-radius:50%; background:#fff; margin-right:10px;">
+                <span>Chat With Codenthia AI</span>
+                <button id="custom-close-chatbot-btn" class="close-btn">&times;</button>
+                <button id="custom-maximize-chatbot-btn" class="maximize-btn" title="Maksimize Et">&#x26F6;</button>
+            </div>
+            <div class="chatbot-body" id="chatbot-messages">
+                <div class="chatbot-message bot">Merhaba! Size nasıl yardımcı olabilirim?</div>
+            </div>
+            <div class="chatbot-footer">
+                <input type="text" id="chatbot-input" placeholder="Mesajınızı yazın..." autocomplete="off" />
+                <button id="chatbot-send-btn"><i class="bi bi-send"></i></button>
+            </div>
+        </div>
+    </div>
+    <style>
+        #custom-chatbot-widget {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            z-index: 9999;
+        }
+        
+        .chatbot-fab {
+            background: linear-gradient(135deg, #3a7bd5 0%, #3a6073 100%);
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 70px;
+            height: 70px;
+            font-size: 34px;
+            box-shadow: 3px -2px 54px -8px rgba(50, 182, 234, 0.75);
+            -webkit-box-shadow: 3px -2px 54px -8px rgba(50, 182, 234, 0.75);
+            -moz-box-shadow: 3px -2px 54px -8px rgba(50, 182, 234, 0.75);
+            cursor: pointer;
+        }
+        
+        .chatbot-fab:hover {
+            transform: scale(1.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .chatbot-popup {
+            display: none;
+            flex-direction: column;
+            position: absolute;
+            bottom: 50px;
+            right: 0;
+            width: 500px;
+            height: 500px;
+            background: #f7f8fa;
+            border-radius: 24px;
+            box-shadow: -28px 15px 99px 31px rgba(38, 146, 234, 0.38);
+            -webkit-box-shadow: -28px 15px 99px 31px rgba(38, 146, 234, 0.38);
+            -moz-box-shadow: -28px 15px 99px 31px rgba(38, 146, 234, 0.38);
+            animation: popupOpen 0.3s cubic-bezier(.4, 2, .6, 1);
+        }
+        
+        @keyframes popupOpen {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        .chatbot-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 20px 28px;
+            background: linear-gradient(90deg, #3a7bd5 0%, #3a6073 100%);
+            color: #fff;
+            border-top-left-radius: 24px;
+            border-top-right-radius: 24px;
+            font-size: 1.35rem;
+            font-weight: 600;
+        }
+        
+        .close-btn,
+        .maximize-btn {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 28px;
+            margin-left: 12px;
+            cursor: pointer;
+        }
+        
+        .chatbot-body {
+            padding: 24px;
+            height: 400px;
+            overflow-y: auto;
+            background: #f7f8fa;
+            font-size: 1.15rem;
+        }
+        
+        .chatbot-message {
+            margin-bottom: 16px;
+            padding: 12px 18px;
+            border-radius: 16px;
+            max-width: 80%;
+            word-break: break-word;
+            font-size: 1.08rem;
+        }
+        
+        .chatbot-message.bot {
+            background: #e6eaff;
+            align-self: flex-start;
+        }
+        
+        .chatbot-message.user {
+            background: #d1ffd6;
+            align-self: flex-end;
+            margin-left: auto;
+        }
+        
+        .chatbot-footer {
+            display: flex;
+            padding: 18px 24px;
+            border-top: 1px solid #e0e0e0;
+            background: #fff;
+            border-bottom-left-radius: 24px;
+            border-bottom-right-radius: 24px;
+        }
+        
+        #chatbot-input {
+            flex: 1;
+            border: none;
+            border-radius: 12px;
+            padding: 14px;
+            margin-right: 12px;
+            background: #f0f2f5;
+            font-size: 1.1rem;
+        }
+        
+        #chatbot-send-btn {
+            background: linear-gradient(135deg, #3a7bd5 0%, #3a6073 100%);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            padding: 0 22px;
+            font-size: 26px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+
+</body>
+
+</html>

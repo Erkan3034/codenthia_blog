@@ -1,0 +1,222 @@
+{% extends "layout.html" %} {% load static %} {% block body %}
+<article class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10 col-lg-8">
+            <a href="{% url 'article:articles' %}" class="btn btn-outline-secondary mb-3">
+                <i class="bi bi-arrow-left"></i> Tüm Blog Yazılarına Dön
+            </a>
+            <div class="card shadow-lg">
+                {% if article.image %}
+                <img src="{{ article.image.url }}" class="card-img-top" alt="{{ article.title }}" style="object-fit:cover; max-height:350px;"> {% else %}
+                <img src="{% static 'codenthiaRevize.png' %}" class="card-img-top" alt="{{ article.title }}" style="object-fit:cover; max-height:350px;"> {% endif %}
+                <div class="card-body">
+                    <h1 class="card-title mb-3">{{ article.title | safe }}</h1>
+                    <!-- Kategori ve Etiketler -->
+                    <div class="mb-3">
+                        {% if article.category %}
+                        <span class="badge bg-primary"><i class="bi bi-folder"></i> {{ article.category.name }}</span> {% endif %} {% if article.tags.all %}
+                        <span>
+                                {% for tag in article.tags.all %}
+                                    <span class="badge bg-success"><i class="bi bi-hash"></i> {{ tag.name }}</span> {% endfor %}
+                        </span>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3 text-muted d-flex align-items-center gap-2">
+                        <a href="{% url 'user:public_profile' article.author.username %}" class="d-flex align-items-center text-decoration-none text-dark">
+                            {% if article.author.profile.image %}
+                                <img src="{{ article.author.profile.image.url }}" alt="{{ article.author.username }}" class="rounded-circle me-2" style="width:36px; height:36px; object-fit:cover;">
+                            {% else %}
+                                <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center me-2" style="width:36px; height:36px;">
+                                    <span class="text-white fw-bold">{{ article.author.username|first|upper }}</span>
+                                </div>
+                            {% endif %}
+                            <span class="fw-semibold">{{ article.author.get_full_name|default:article.author.username }}</span>
+                        </a>
+                        <span>|</span>
+                        <i class="bi bi-calendar"></i> {{ article.created_date|date:"d M Y H:i" }}
+                    </div>
+                    <hr>
+                    <div class="card-text" style="font-size:1.15rem;">
+                        {{ article.content|safe|linebreaks }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Yorumlar Bölümü  Start-->
+            <div class="card shadow-lg mt-4">
+                <div class="card-body">
+                    <h3 class="card-title mb-4">
+                        <i class="bi bi-chat-dots"></i> Yorumlar
+                        <small class="text-muted">({{ comments.count }})</small>
+                    </h3>
+
+                    <!-- Yorum Formu -->
+                    {% if request.user.is_authenticated %}
+                    <form method="post" class="mb-4" action="{% url 'article:comment' article.id %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="parent" id="parent_id" value="">
+                        <input type="hidden" name="reply_to" id="reply_to" value="">
+                        <div class="mb-3">
+                            {{ comment_form.comment_content.label_tag }} {{ comment_form.comment_content }}
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-send"></i> Yorum Yap
+                            </button>
+                    </form>
+                    {% else %}
+                    <div class="alert alert-warning mt-3">
+                        Yorum yapmak için <a href="/user/login/?next={{ request.path }}" class="btn btn-sm btn-primary ms-2">Giriş Yap</a> gereklidir.
+                    </div>
+                    {% endif %}
+
+                    <!-- Mevcut Yorumlar -->
+                    {% if comments %} {% for comment in comments %} {% if not comment.parent %}
+                    <div class="comment-card mb-4">
+                        <div class="d-flex align-items-center mb-2">
+                            <div class="comment-avatar me-3">
+                                <span>
+                                            {% if comment.comment_author %}
+                                                {{ comment.comment_author|first|upper }}
+                                            {% else %}
+                                                <i class="bi bi-person"></i>
+                                            {% endif %}
+                                        </span>
+                            </div>
+                            <div class="flex-grow-1">
+                                <span class="comment-author">{{ comment.comment_author }}</span>
+                                <span class="comment-date ms-2">
+                                            <i class="bi bi-clock"></i> {{ comment.comment_date|date:"d M Y H:i" }}
+                                        </span>
+                                <button type="button" class="btn btn-link btn-sm text-primary p-0 ms-2" onclick="setReply('{{ comment.id }}', '{{ comment.comment_author|escapejs }}')">Yanıtla</button>
+                            </div>
+                        </div>
+                        <div class="comment-content">
+                            {{ comment.comment_content|linebreaks }}
+                        </div>
+                        <!-- Yanıtlar -->
+                        {% for reply in comment.replies.all %}
+                        <div class="comment-card mt-3 ms-5" style="background:#f8f9fa;">
+                            <div class="d-flex align-items-center mb-2">
+                                <div class="comment-avatar me-3">
+                                    <span>
+                                                {% if reply.comment_author %}
+                                                    {{ reply.comment_author|first|upper }}
+                                                {% else %}
+                                                    <i class="bi bi-person"></i>
+                                                {% endif %}
+                                            </span>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <span class="comment-author">{{ reply.comment_author }}</span>
+                                    <span class="comment-date ms-2">
+                                                <i class="bi bi-clock"></i> {{ reply.comment_date|date:"d M Y H:i" }}
+                                            </span>
+                                    <span class="badge bg-light text-dark ms-2">@{{ reply.reply_to }}</span>
+                                </div>
+                            </div>
+                            <div class="comment-content">
+                                {{ reply.comment_content|linebreaks }}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %} {% endfor %} {% else %}
+                    <div class="text-center py-4">
+                        <i class="bi bi-chat-square-text display-4 text-muted mb-3"></i>
+                        <p class="text-muted mb-0">Henüz yorum yapılmamış. İlk yorumu siz yapın!</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Yorumlar Bölümü Sonu-->
+        </div>
+    </div>
+</article>
+
+<style>
+    .avatar {
+        min-width: 36px;
+        min-height: 36px;
+        font-weight: bold;
+        background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+    }
+    
+    .list-group-item {
+        background: #f8f9fa;
+        border-radius: 8px;
+        margin-bottom: 10px;
+    }
+    
+    .comment-card {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 2px 12px rgba(80, 80, 120, 0.07);
+        padding: 1.2rem 1.5rem;
+        transition: box-shadow 0.2s;
+        border: 1px solid #f0f0f0;
+    }
+    
+    .comment-card:hover {
+        box-shadow: 0 4px 24px rgba(80, 80, 120, 0.13);
+    }
+    
+    .comment-avatar {
+        width: 42px;
+        height: 42px;
+        background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+        color: #fff;
+        font-weight: 600;
+        font-size: 1.3rem;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 8px rgba(106, 17, 203, 0.08);
+    }
+    
+    .comment-author {
+        font-weight: 600;
+        font-size: 1.08rem;
+        color: #222;
+        letter-spacing: 0.01em;
+    }
+    
+    .comment-date {
+        font-size: 0.95rem;
+        color: #888;
+        font-weight: 400;
+    }
+    
+    .comment-content {
+        margin-left: 55px;
+        margin-top: 0.2rem;
+        font-size: 1.08rem;
+        color: #222;
+        word-break: break-word;
+    }
+    
+    @media (max-width: 600px) {
+        .comment-card {
+            padding: 1rem;
+        }
+        .comment-content {
+            margin-left: 0;
+        }
+        .comment-avatar {
+            width: 36px;
+            height: 36px;
+            font-size: 1.1rem;
+        }
+    }
+</style>
+
+<script>
+    function setReply(parentId, replyTo) {
+        document.getElementById('parent_id').value = parentId;
+        document.getElementById('reply_to').value = replyTo;
+        document.getElementById('id_comment_content').focus();
+    }
+</script>
+
+{% endblock %}

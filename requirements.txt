@@ -1,3 +1,4 @@
+# Django Blog Requirements
 Django==5.2.1
 django-ckeditor==6.7.2
 django-cleanup==9.0.0

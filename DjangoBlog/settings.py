@@ -31,10 +31,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'False').lower() in ('true', '1', 'yes')
 
-ALLOWED_HOSTS = ['codenthia-com.onrender.com', 'localhost', '127.0.0.1'] # Bu kod, tüm hostların erişimine izin verir(debug modu true olduğu için)
-#ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+ALLOWED_HOSTS = [
+    'codenthia-com.onrender.com', 
+    'codenthia_blog.wasmer.app',  # Wasmer Edge domain
+    '.wasmer.app',  # Tüm Wasmer subdomainleri
+    'localhost', 
+    '127.0.0.1'
+]
 
 
 # Application definition
@@ -92,12 +97,28 @@ WSGI_APPLICATION = 'DjangoBlog.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+# Wasmer Edge MySQL veya local SQLite
+if os.getenv('DB_HOST'):
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': os.getenv('DB_NAME'),
+            'USER': os.getenv('DB_USERNAME'),
+            'PASSWORD': os.getenv('DB_PASSWORD'),
+            'HOST': os.getenv('DB_HOST'),
+            'PORT': os.getenv('DB_PORT', '3306'),
+            'OPTIONS': {
+                'charset': 'utf8mb4',
+            }
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 
 # Password validation
@@ -175,4 +196,8 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 CSRF_COOKIE_SECURE = False  # Test için False, üretimde True yapın
 SESSION_COOKIE_SECURE = False  # Test için False, üretimde True yapın
 
-CSRF_TRUSTED_ORIGINS = ['https://codenthia-com.onrender.com']
+CSRF_TRUSTED_ORIGINS = [
+    'https://codenthia-com.onrender.com',
+    'https://codenthia_blog.wasmer.app',
+    'https://*.wasmer.app',
+]

@@ -2,13 +2,19 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
-from together import Together
 import os
 from dotenv import load_dotenv
 
-# API KEY doğrudan yazılmış (production için os.environ tercih edilmeli)
+# Together API - WASI ortamında çalışmayabilir
 load_dotenv()
-client = Together(api_key=os.getenv("TOGETHER_API_KEY"))
+
+try:
+    from together import Together
+    client = Together(api_key=os.getenv("TOGETHER_API_KEY"))
+    TOGETHER_AVAILABLE = True
+except ImportError:
+    client = None
+    TOGETHER_AVAILABLE = False
 
 @csrf_exempt
 def ask_api(request):
@@ -54,6 +60,12 @@ def ask_api(request):
                 "Bizi tercih ettiğiniz için teşekkür ederiz! 🚀"
             )
             return JsonResponse({"answer": cevap})
+
+        # Together API mevcut değilse hata döndür
+        if not TOGETHER_AVAILABLE or client is None:
+            return JsonResponse({
+                "answer": "Chatbot şu anda kullanılamıyor. Lütfen daha sonra tekrar deneyin. 🔧"
+            })
 
         response = client.chat.completions.create(
             model="deepseek-ai/DeepSeek-V3",

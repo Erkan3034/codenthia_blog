@@ -13,12 +13,19 @@ import os
 import dotenv
 from dotenv import load_dotenv
 
+# WASI ortamında USER environment variable gerekli (PyMySQL için)
+if 'USER' not in os.environ:
+    os.environ['USER'] = 'app'
+if 'LOGNAME' not in os.environ:
+    os.environ['LOGNAME'] = 'app'
+
 # PyMySQL'i mysqlclient yerine kullan (Wasmer Edge WASI uyumluluğu için)
 try:
     import pymysql
     pymysql.install_as_MySQLdb()
-except ImportError:
-    pass
+    PYMYSQL_AVAILABLE = True
+except (ImportError, Exception):
+    PYMYSQL_AVAILABLE = False
 
 load_dotenv()
 
@@ -107,7 +114,8 @@ WSGI_APPLICATION = 'DjangoBlog.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 # Wasmer Edge MySQL veya local SQLite
-if os.getenv('DB_HOST'):
+# PyMySQL mevcut ve DB_HOST tanımlıysa MySQL kullan, değilse SQLite
+if os.getenv('DB_HOST') and PYMYSQL_AVAILABLE:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',

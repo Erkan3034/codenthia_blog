@@ -35,15 +35,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('SECRET_KEY')
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-fallback-key-change-in-production-12345')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG', 'False').lower() in ('true', '1', 'yes')
+DEBUG = os.getenv('DEBUG', 'True').lower() in ('true', '1', 'yes')
 
 ALLOWED_HOSTS = [
     'codenthia-com.onrender.com', 
-    'codenthia_blog.wasmer.app',  # Wasmer Edge domain
+    'codenthia-blog.wasmer.app',  # Wasmer Edge domain (tire ile)
+    'codenthia_blog.wasmer.app',  # Alt çizgi versiyonu
     '.wasmer.app',  # Tüm Wasmer subdomainleri
+    '*',  # Geçici olarak tüm hostlara izin ver (debug için)
     'localhost', 
     '127.0.0.1'
 ]
@@ -165,7 +167,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR / "static"),
+    BASE_DIR / "static",
 ]
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles') # Bu kod, static dosyalarının toplanacağı dizini belirtir
@@ -205,6 +207,7 @@ SESSION_COOKIE_SECURE = False  # Test için False, üretimde True yapın
 
 CSRF_TRUSTED_ORIGINS = [
     'https://codenthia-com.onrender.com',
-    'https://codenthia_blog.wasmer.app',
+    'https://codenthia-blog.wasmer.app',  # Tire ile (URL'deki gibi)
+    'https://codenthia_blog.wasmer.app',  # Alt çizgi versiyonu
     'https://*.wasmer.app',
 ]

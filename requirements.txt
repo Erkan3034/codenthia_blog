@@ -6,4 +6,4 @@ python-dotenv==1.0.0
 together==1.5.8
 whitenoise==6.5.0
 gunicorn==21.2.0
-mysqlclient==2.2.4
+PyMySQL==1.1.1

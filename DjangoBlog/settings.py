@@ -13,6 +13,13 @@ import os
 import dotenv
 from dotenv import load_dotenv
 
+# PyMySQL'i mysqlclient yerine kullan (Wasmer Edge WASI uyumluluğu için)
+try:
+    import pymysql
+    pymysql.install_as_MySQLdb()
+except ImportError:
+    pass
+
 load_dotenv()
 
 TOGETHER_API_KEY = os.getenv("TOGETHER_API_KEY")

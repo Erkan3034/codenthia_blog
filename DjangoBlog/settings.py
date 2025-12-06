@@ -107,7 +107,8 @@ TEMPLATES = [
 # Custom error pages
 handler404 = 'article.views.handler404' # Bu kod, 404 hatasının oluştuğu zaman hangi sayfaya yönlendirileceğini belirtir
 
-WSGI_APPLICATION = 'DjangoBlog.wsgi.application'
+# Wasmer Edge için 'app' kullanılmalı
+WSGI_APPLICATION = 'DjangoBlog.wsgi.app'
 
 
 # Database

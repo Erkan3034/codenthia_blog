@@ -3,11 +3,8 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
 import os
-from dotenv import load_dotenv
 
-# Together API - WASI ortamında çalışmayabilir
-load_dotenv()
-
+# Together API - Optional
 try:
     from together import Together
     client = Together(api_key=os.getenv("TOGETHER_API_KEY"))
@@ -15,6 +12,7 @@ try:
 except ImportError:
     client = None
     TOGETHER_AVAILABLE = False
+
 
 @csrf_exempt
 def ask_api(request):
@@ -53,10 +51,11 @@ def ask_api(request):
         ]
         if any(trigger in user_message for trigger in kurucu_triggers):
             cevap = (
-                "Codenthia'nın kurucusu **Erkan TURGUT**'tur.\n Kendisi Yapay Zeka ve Full Stack alanlarında Uzmanlaşmaya devam etmektedir.\n"
+                "Codenthia'nın kurucusu **Erkan TURGUT**'tur.\n "
+                "Kendisi Yapay Zeka ve Full Stack alanlarında Uzmanlaşmaya devam etmektedir.\n"
                 "- LinkedIn: [Linkedin'e git](https://www.linkedin.com/in/erkanturgut1205)\n"
                 "- Github: [Github'a göz atın](https://github.com/Erkan3034)\n"
-                "- Resmi site: [https://codenthia.com](https://codenthia.com)\n"
+                
                 "Bizi tercih ettiğiniz için teşekkür ederiz! 🚀"
             )
             return JsonResponse({"answer": cevap})
@@ -64,7 +63,7 @@ def ask_api(request):
         # Together API mevcut değilse hata döndür
         if not TOGETHER_AVAILABLE or client is None:
             return JsonResponse({
-                "answer": "Chatbot şu anda kullanılamıyor. Lütfen daha sonra tekrar deneyin. 🔧"
+                "answer": "Chatbot şu anda kullanılamıyor. Together API yapılandırılmamış. 🔧"
             })
 
         response = client.chat.completions.create(
@@ -83,6 +82,7 @@ def ask_api(request):
 
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
+
 
 def chatbot_page(request):
     return render(request, "chatbot/chat.html")

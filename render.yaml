@@ -1,0 +1,30 @@
+# Render Blueprint
+# https://render.com/docs/blueprint-spec
+
+services:
+  - type: web
+    name: codenthia-blog
+    env: python
+    buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput
+    startCommand: gunicorn DjangoBlog.wsgi:application
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      - key: ALLOWED_HOSTS
+        value: ".onrender.com"
+      - key: CSRF_TRUSTED_ORIGINS
+        value: "https://codenthia-blog.onrender.com"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: codenthia-db
+          property: connectionString
+      - key: PYTHON_VERSION
+        value: "3.12.0"
+
+databases:
+  - name: codenthia-db
+    databaseName: codenthia
+    plan: free
+

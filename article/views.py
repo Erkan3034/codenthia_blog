@@ -11,31 +11,20 @@ from user.forms import NewsletterForm
 
 #================================================================
 def index(request):
-    # Migrate henüz tamamlanmamış olabilir, hata durumunda boş değerler kullan
-    try:
-        articles = Article.objects.all().order_by('-created_date')[:6]
-        all_categories = list(Category.objects.all())
-        main_categories = all_categories[:3]
-        other_categories = all_categories[3:]
-        popular_tags = Tag.objects.all()[:6]
-        recent_questions = CommunityQuestion.objects.all().order_by('-created_date')[:3]
-        User = get_user_model()
-        site_stats = {
-            'total_articles': Article.objects.count(),
-            'total_comments': Comment.objects.count(),
-            'total_questions': CommunityQuestion.objects.count(),
-            'total_users': User.objects.count(),
-        }
-        top_authors = User.objects.annotate(article_count=models.Count('article')).order_by('-article_count', 'username')[:3]
-    except Exception:
-        # Tablolar henüz oluşmamış, boş değerler kullan
-        articles = []
-        main_categories = []
-        other_categories = []
-        popular_tags = []
-        recent_questions = []
-        site_stats = {'total_articles': 0, 'total_comments': 0, 'total_questions': 0, 'total_users': 0}
-        top_authors = []
+    articles = Article.objects.all().order_by('-created_date')[:6]
+    all_categories = list(Category.objects.all())
+    main_categories = all_categories[:3]
+    other_categories = all_categories[3:]
+    popular_tags = Tag.objects.all()[:6]
+    recent_questions = CommunityQuestion.objects.all().order_by('-created_date')[:3]
+    User = get_user_model()
+    site_stats = {
+        'total_articles': Article.objects.count(),
+        'total_comments': Comment.objects.count(),
+        'total_questions': CommunityQuestion.objects.count(),
+        'total_users': User.objects.count(),
+    }
+    top_authors = User.objects.annotate(article_count=models.Count('article')).order_by('-article_count', 'username')[:3]
     
     context = {
         "articles": articles,

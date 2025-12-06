@@ -10,55 +10,29 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 import os
-import dotenv
+from pathlib import Path
 from dotenv import load_dotenv
-
-# WASI ortamında USER environment variable gerekli (PyMySQL için)
-if 'USER' not in os.environ:
-    os.environ['USER'] = 'app'
-if 'LOGNAME' not in os.environ:
-    os.environ['LOGNAME'] = 'app'
-
-# PyMySQL'i mysqlclient yerine kullan (Wasmer Edge WASI uyumluluğu için)
-try:
-    import pymysql
-    pymysql.install_as_MySQLdb()
-    PYMYSQL_AVAILABLE = True
-except (ImportError, Exception):
-    PYMYSQL_AVAILABLE = False
 
 load_dotenv()
 
-TOGETHER_API_KEY = os.getenv("TOGETHER_API_KEY")
-
-
-from pathlib import Path
-import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
+# =============================================================================
+# SECURITY SETTINGS
+# =============================================================================
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-fallback-key-change-in-production-12345')
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-dev-key-change-in-production')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG', 'True').lower() in ('true', '1', 'yes')
+DEBUG = os.getenv('DEBUG', 'False').lower() in ('true', '1', 'yes')
 
-ALLOWED_HOSTS = [
-    'codenthia-com.onrender.com', 
-    'codenthia-blog.wasmer.app',  # Wasmer Edge domain (tire ile)
-    'codenthia_blog.wasmer.app',  # Alt çizgi versiyonu
-    '.wasmer.app',  # Tüm Wasmer subdomainleri
-    '*',  # Geçici olarak tüm hostlara izin ver (debug için)
-    'localhost', 
-    '127.0.0.1'
-]
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
-
-# Application definition
+# =============================================================================
+# APPLICATION DEFINITION
+# =============================================================================
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -67,20 +41,22 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    "article", # Bu kod, article uygulamasını projenin diğer bölümlerine entegre eder
-    "user",
-    'ckeditor', # Zengin metin editörü için eklendi
-    'django_cleanup.apps.CleanupConfig', # Bu kod, Django'nun dosya silme işlemlerini otomatikleştirir
-    'chatbot',
+    # Third party apps
+    'ckeditor',
+    'django_cleanup.apps.CleanupConfig',
     'widget_tweaks',
+    # Local apps
+    'article',
+    'user',
+    'chatbot',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    # 'django.middleware.csrf.CsrfViewMiddleware',  # WASI h11 cookie header sorunu nedeniyle devre dışı
+    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -91,7 +67,7 @@ ROOT_URLCONF = 'DjangoBlog.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ["templates"], # Bu kod, Django'ya şablon dosyalarının bulunduğu dizini belirtir
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -103,34 +79,27 @@ TEMPLATES = [
     },
 ]
 
-
 # Custom error pages
-handler404 = 'article.views.handler404' # Bu kod, 404 hatasının oluştuğu zaman hangi sayfaya yönlendirileceğini belirtir
+handler404 = 'article.views.handler404'
 
-# Wasmer Edge için 'app' kullanılmalı
-WSGI_APPLICATION = 'DjangoBlog.wsgi.app'
+WSGI_APPLICATION = 'DjangoBlog.wsgi.application'
 
-
-# Database
+# =============================================================================
+# DATABASE
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
+# =============================================================================
 
-# Wasmer Edge MySQL veya local SQLite
-# PyMySQL mevcut ve DB_HOST tanımlıysa MySQL kullan, değilse SQLite
-if os.getenv('DB_HOST') and PYMYSQL_AVAILABLE:
+# PostgreSQL (Production) veya SQLite (Development)
+DATABASE_URL = os.getenv('DATABASE_URL')
+
+if DATABASE_URL:
+    # PostgreSQL for production (Render, Railway, Heroku, etc.)
+    import dj_database_url
     DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME': os.getenv('DB_NAME'),
-            'USER': os.getenv('DB_USERNAME'),
-            'PASSWORD': os.getenv('DB_PASSWORD'),
-            'HOST': os.getenv('DB_HOST'),
-            'PORT': os.getenv('DB_PORT', '3306'),
-            'OPTIONS': {
-                'charset': 'utf8mb4',
-            }
-        }
+        'default': dj_database_url.config(default=DATABASE_URL, conn_max_age=600)
     }
 else:
+    # SQLite for local development
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
@@ -138,70 +107,65 @@ else:
         }
     }
 
-
-# Password validation
-# https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
+# =============================================================================
+# PASSWORD VALIDATION
+# =============================================================================
 
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
+    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
-
-# Internationalization
-# https://docs.djangoproject.com/en/5.2/topics/i18n/
+# =============================================================================
+# INTERNATIONALIZATION
+# =============================================================================
 
 LANGUAGE_CODE = 'tr'
-
 TIME_ZONE = 'Europe/Istanbul'
-
 USE_I18N = True
-
 USE_TZ = True
 
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.2/howto/static-files/
+# =============================================================================
+# STATIC FILES (CSS, JavaScript, Images)
+# =============================================================================
 
 STATIC_URL = '/static/'
+STATICFILES_DIRS = [BASE_DIR / 'static']
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-STATICFILES_DIRS = [
-    BASE_DIR / "static",
-]
+# WhiteNoise for static file serving
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles') # Bu kod, static dosyalarının toplanacağı dizini belirtir
-
-
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
-
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+# =============================================================================
+# MEDIA FILES
+# =============================================================================
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# Media dosyalarını serve etmek için güvenlik ayarı
-X_FRAME_OPTIONS = 'SAMEORIGIN'
-SECURE_CONTENT_TYPE_NOSNIFF = False  # Media dosyaları için gerekli
+# =============================================================================
+# DEFAULT PRIMARY KEY
+# =============================================================================
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# =============================================================================
+# CKEDITOR CONFIGURATION
+# =============================================================================
 
 CKEDITOR_CONFIGS = {
     'default': {
         'removePlugins': 'stylesheetparser',
         'allowedContent': True,
         'width': '100%',
+    }
+}
 
-}
-}
+# =============================================================================
+# EMAIL CONFIGURATION
+# =============================================================================
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')
@@ -211,16 +175,35 @@ EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
-CSRF_COOKIE_SECURE = False  # Test için False, üretimde True yapın
-SESSION_COOKIE_SECURE = False  # Test için False, üretimde True yapın
+# =============================================================================
+# SECURITY (Production)
+# =============================================================================
 
-# CSRF cookie ayarları
-CSRF_COOKIE_SAMESITE = 'Lax'
-CSRF_COOKIE_HTTPONLY = False
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    X_FRAME_OPTIONS = 'DENY'
+    SECURE_HSTS_SECONDS = 31536000
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+else:
+    X_FRAME_OPTIONS = 'SAMEORIGIN'
+
+# =============================================================================
+# CSRF TRUSTED ORIGINS
+# =============================================================================
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://codenthia-com.onrender.com',
-    'https://codenthia-blog.wasmer.app',  # Tire ile (URL'deki gibi)
-    'https://codenthia_blog.wasmer.app',  # Alt çizgi versiyonu
-    'https://*.wasmer.app',
+    origin.strip() 
+    for origin in os.getenv('CSRF_TRUSTED_ORIGINS', 'https://localhost').split(',')
 ]
+
+# =============================================================================
+# TOGETHER AI API (Chatbot)
+# =============================================================================
+
+TOGETHER_API_KEY = os.getenv('TOGETHER_API_KEY')

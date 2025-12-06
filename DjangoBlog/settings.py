@@ -213,6 +213,9 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 CSRF_COOKIE_SECURE = False  # Test için False, üretimde True yapın
 SESSION_COOKIE_SECURE = False  # Test için False, üretimde True yapın
 
+# WASI/h11 uyumluluğu için CSRF token'ı session'da sakla (cookie header sorunu)
+CSRF_USE_SESSIONS = True
+
 CSRF_TRUSTED_ORIGINS = [
     'https://codenthia-com.onrender.com',
     'https://codenthia-blog.wasmer.app',  # Tire ile (URL'deki gibi)
